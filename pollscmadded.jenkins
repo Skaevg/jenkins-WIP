@@ -1,0 +1,24 @@
+#!groovy
+// Run docker buildDiscarderpropertises
+properties([disableConcurrentBuilds()])
+
+pipeline {
+    agent {
+        label 'master'
+        }
+    triggers { pollSCM('* * * * *')} # обновление раз в минуту.
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        timestamps()
+    }
+    stages {
+        stage("create docker image") {
+            steps {
+                echo " ============== start building image ============== "
+                dir ('docker/toolbox') { # эта директрия в гите лежит докерфайл
+                    sh 'docker build'
+                }
+            }
+        }
+    }
+}
